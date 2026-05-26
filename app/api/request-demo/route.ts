@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
 import os from "os";
+import { fetchWithTimeout } from "@/lib/utils/fetch-with-timeout";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -65,7 +66,7 @@ export async function POST(req: NextRequest) {
     try {
       const to = process.env.REQUEST_DEMO_TO || "carther91@gmail.com";
       const from = process.env.RESEND_FROM || "MatchRoom <onboarding@resend.dev>";
-      const res = await fetch("https://api.resend.com/emails", {
+      const res = await fetchWithTimeout("https://api.resend.com/emails", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${key}`,
@@ -78,6 +79,7 @@ export async function POST(req: NextRequest) {
           subject: `MatchRoom demo request — ${name}${team ? ` (${team})` : ""}`,
           text: `New MatchRoom demo request\n\nName: ${name}\nEmail: ${email}\nTeam: ${team || "—"}\nMessage: ${message || "—"}\nReceived: ${record.at}`,
         }),
+        timeoutMs: 6000,
       });
       emailed = res.ok;
     } catch {

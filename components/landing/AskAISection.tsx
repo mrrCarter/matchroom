@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { fetchWithTimeout } from "@/lib/utils/fetch-with-timeout";
 
 const FALLBACK_PROMPT = `What is MatchRoom by PlexAura?
 
@@ -36,7 +37,11 @@ export function AskAISection() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/ask-ai-links")
+    const controller = new AbortController();
+    fetchWithTimeout("/api/ask-ai-links", {
+      signal: controller.signal,
+      timeoutMs: 6000,
+    })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d: { prompt?: string; models?: AskAiModel[] }) => {
         if (cancelled) return;
@@ -46,6 +51,7 @@ export function AskAISection() {
       .catch(() => {});
     return () => {
       cancelled = true;
+      controller.abort();
     };
   }, []);
 

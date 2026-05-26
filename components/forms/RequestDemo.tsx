@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { fetchWithTimeout } from "@/lib/utils/fetch-with-timeout";
 
 type Status = "idle" | "submitting" | "ok" | "error";
 
@@ -22,10 +23,11 @@ export function RequestDemo() {
     setStatus("submitting");
     setError("");
     try {
-      const res = await fetch("/api/request-demo", {
+      const res = await fetchWithTimeout("/api/request-demo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
+        timeoutMs: 8000,
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.ok) {

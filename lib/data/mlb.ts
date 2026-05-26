@@ -4,6 +4,7 @@ import type {
   UpcomingGame,
   UpcomingTeamSnapshot,
 } from "@/lib/types/matchroom";
+import { fetchWithTimeout } from "@/lib/utils/fetch-with-timeout";
 
 const MLB_API = "https://statsapi.mlb.com/api/v1";
 const RED_SOX_TEAM_ID = 111;
@@ -70,11 +71,12 @@ function addDays(date: Date, days: number): Date {
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
-  const response = await fetch(url, {
+  const response = await fetchWithTimeout(url, {
     cache: "no-store",
     headers: {
       Accept: "application/json",
     },
+    timeoutMs: 8000,
   });
 
   if (!response.ok) {
@@ -86,8 +88,7 @@ async function fetchJson<T>(url: string): Promise<T> {
 
 function pickGame(games: MlbScheduleGame[], requestedGamePk?: number): MlbScheduleGame | undefined {
   if (requestedGamePk) {
-    const requested = games.find((game) => game.gamePk === requestedGamePk);
-    if (requested) return requested;
+    return games.find((game) => game.gamePk === requestedGamePk);
   }
 
   const now = Date.now();
@@ -100,6 +101,17 @@ function pickGame(games: MlbScheduleGame[], requestedGamePk?: number): MlbSchedu
       );
     }) ?? games[0]
   );
+}
+
+function scheduleUrlFor(requestedGamePk?: number): string {
+  if (requestedGamePk) {
+    return `${MLB_API}/schedule?sportId=1&gamePks=${requestedGamePk}&hydrate=probablePitcher,team,venue`;
+  }
+
+  const today = new Date();
+  const startDate = isoDate(today);
+  const endDate = isoDate(addDays(today, SEARCH_DAYS));
+  return `${MLB_API}/schedule?sportId=1&teamId=${RED_SOX_TEAM_ID}&startDate=${startDate}&endDate=${endDate}&hydrate=probablePitcher,team,venue`;
 }
 
 function asRecord(side?: MlbTeamSide): UpcomingTeamSnapshot["record"] {
@@ -161,17 +173,17 @@ async function toTeamSnapshot(side?: MlbTeamSide): Promise<UpcomingTeamSnapshot>
 }
 
 export async function getUpcomingRedSoxGame(requestedGamePk?: number): Promise<UpcomingGame> {
-  const today = new Date();
-  const startDate = isoDate(today);
-  const endDate = isoDate(addDays(today, SEARCH_DAYS));
-  const sourceUrl = `${MLB_API}/schedule?sportId=1&teamId=${RED_SOX_TEAM_ID}&startDate=${startDate}&endDate=${endDate}&hydrate=probablePitcher,team,venue`;
-
+  const sourceUrl = scheduleUrlFor(requestedGamePk);
   const schedule = await fetchJson<MlbScheduleResponse>(sourceUrl);
   const games = (schedule.dates ?? []).flatMap((date) => date.games ?? []);
   const game = pickGame(games, requestedGamePk);
 
   if (!game?.gamePk) {
-    throw new Error("No upcoming Red Sox game found in MLB Stats API schedule.");
+    throw new Error(
+      requestedGamePk
+        ? `No MLB game found for gamePk ${requestedGamePk}.`
+        : "No upcoming Red Sox game found in MLB Stats API schedule.",
+    );
   }
 
   const [away, home] = await Promise.all([
@@ -179,7 +191,7 @@ export async function getUpcomingRedSoxGame(requestedGamePk?: number): Promise<U
     toTeamSnapshot(game.teams?.home),
   ]);
 
-  const date = game.officialDate ?? game.gameDate?.slice(0, 10) ?? startDate;
+  const date = game.officialDate ?? game.gameDate?.slice(0, 10) ?? isoDate(new Date());
   const venue = game.venue?.name ?? "Venue TBD";
   const matchupLabel = `${away.name} @ ${home.name}`;
   const feedUrl = `https://statsapi.mlb.com${game.link ?? `/api/v1.1/game/${game.gamePk}/feed/live`}`;

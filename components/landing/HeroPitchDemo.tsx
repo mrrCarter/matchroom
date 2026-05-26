@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { fetchWithTimeout } from "@/lib/utils/fetch-with-timeout";
 
 /**
  * Hero animation for the landing page (spec v1.2 §6).
@@ -90,7 +91,11 @@ export function HeroPitchDemo() {
   // Load the real Statcast seed if the data lane has shipped it.
   useEffect(() => {
     let cancelled = false;
-    fetch("/data/matchroom-pitch-sequence.json")
+    const controller = new AbortController();
+    fetchWithTimeout("/data/matchroom-pitch-sequence.json", {
+      signal: controller.signal,
+      timeoutMs: 6000,
+    })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((data: PitchSequenceFile) => {
         if (cancelled || !data?.pitches?.length) return;
@@ -102,6 +107,7 @@ export function HeroPitchDemo() {
       });
     return () => {
       cancelled = true;
+      controller.abort();
     };
   }, []);
 

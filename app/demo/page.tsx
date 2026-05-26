@@ -12,6 +12,7 @@ import type {
   UpcomingGame,
   VerifiedBriefResponse,
 } from "@/lib/types/matchroom";
+import { fetchWithTimeout } from "@/lib/utils/fetch-with-timeout";
 
 interface DrawerState {
   open: boolean;
@@ -23,7 +24,7 @@ const isAbortError = (error: unknown) =>
   error instanceof DOMException && error.name === "AbortError";
 
 function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
-  return fetch(url, init).then((response) =>
+  return fetchWithTimeout(url, init).then((response) =>
     response.ok ? response.json() : Promise.reject(new Error(`Request failed: ${url}`))
   );
 }
@@ -129,7 +130,7 @@ export default function DemoPage() {
     setIsSubmitting(true);
     setPhase(1);
     setPlayToken((n) => n + 1);
-    fetch("/api/demo-brief", {
+    fetchWithTimeout("/api/demo-brief", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -137,6 +138,7 @@ export default function DemoPage() {
         gamePk: gameForRequest?.gamePk,
         mode: "live",
       }),
+      timeoutMs: 9000,
     })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d: VerifiedBriefResponse) => setBrief(d))

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { fetchWithTimeout } from "@/lib/utils/fetch-with-timeout";
 import type { PitcherSeasonStats, UpcomingGame, UpcomingTeamSnapshot } from "@/lib/types/matchroom";
 
 function formatDate(value?: string): string {
@@ -68,7 +69,12 @@ export function UpcomingGameCard() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/upcoming-game", { cache: "no-store" })
+    const controller = new AbortController();
+    fetchWithTimeout("/api/upcoming-game", {
+      cache: "no-store",
+      signal: controller.signal,
+      timeoutMs: 8000,
+    })
       .then((response) => (response.ok ? response.json() : Promise.reject()))
       .then((data: UpcomingGame) => {
         if (!cancelled) setGame(data);
@@ -79,6 +85,7 @@ export function UpcomingGameCard() {
 
     return () => {
       cancelled = true;
+      controller.abort();
     };
   }, []);
 

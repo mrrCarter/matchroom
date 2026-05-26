@@ -18,7 +18,11 @@ function round(value, digits = 3) {
 }
 
 async function fetchJson(url) {
-  const response = await fetch(url);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  const response = await fetch(url, { signal: controller.signal }).finally(() => {
+    clearTimeout(timeout);
+  });
   if (!response.ok) {
     throw new Error(`Fetch failed ${response.status} ${response.statusText}: ${url}`);
   }

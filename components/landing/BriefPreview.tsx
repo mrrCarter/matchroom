@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { fetchWithTimeout } from "@/lib/utils/fetch-with-timeout";
 
 interface EvidenceRef {
   pitchId?: string;
@@ -37,15 +38,25 @@ export function BriefPreview() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/demo-brief")
+    const controller = new AbortController();
+    fetchWithTimeout("/api/demo-brief", {
+      signal: controller.signal,
+      timeoutMs: 6000,
+    })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .catch(() => fetch("/data/matchroom-demo-brief.json").then((r) => r.json()))
+      .catch(() =>
+        fetchWithTimeout("/data/matchroom-demo-brief.json", {
+          signal: controller.signal,
+          timeoutMs: 6000,
+        }).then((r) => r.json()),
+      )
       .then((d: Brief) => {
         if (!cancelled) setBrief(d);
       })
       .catch(() => {});
     return () => {
       cancelled = true;
+      controller.abort();
     };
   }, []);
 
