@@ -19,6 +19,67 @@ interface DrawerState {
   refs: EvidenceRef[];
 }
 
+const isAbortError = (error: unknown) =>
+  error instanceof DOMException && error.name === "AbortError";
+
+function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
+  return fetch(url, init).then((response) =>
+    response.ok ? response.json() : Promise.reject(new Error(`Request failed: ${url}`))
+  );
+}
+
+async function loadInitialDemoData(
+  signal: AbortSignal,
+  queryGamePk: string | null
+): Promise<{
+  brief: VerifiedBriefResponse | null;
+  pitches: PitchPoint[];
+  upcomingGame: UpcomingGame | null;
+}> {
+  let brief: VerifiedBriefResponse | null = null;
+  let pitches: PitchPoint[] = [];
+  let upcomingGame: UpcomingGame | null = null;
+
+  try {
+    brief = await fetchJson<VerifiedBriefResponse>("/api/demo-brief", { signal });
+  } catch (error) {
+    if (isAbortError(error)) {
+      return { brief, pitches, upcomingGame };
+    }
+    brief = await fetchJson<VerifiedBriefResponse>("/data/matchroom-demo-brief.json", {
+      signal,
+    });
+  }
+
+  try {
+    const pitchData = await fetchJson<{ pitches?: PitchPoint[] }>(
+      "/data/matchroom-pitch-sequence.json",
+      { signal }
+    );
+    pitches = pitchData.pitches ?? [];
+  } catch (error) {
+    if (!isAbortError(error)) {
+      pitches = [];
+    }
+  }
+
+  const upcomingUrl = queryGamePk
+    ? `/api/upcoming-game?gamePk=${encodeURIComponent(queryGamePk)}`
+    : "/api/upcoming-game";
+  try {
+    upcomingGame = await fetchJson<UpcomingGame>(upcomingUrl, {
+      cache: "no-store",
+      signal,
+    });
+  } catch (error) {
+    if (!isAbortError(error)) {
+      upcomingGame = null;
+    }
+  }
+
+  return { brief, pitches, upcomingGame };
+}
+
 export default function DemoPage() {
   const [brief, setBrief] = useState<VerifiedBriefResponse | null>(null);
   const [upcomingGame, setUpcomingGame] = useState<UpcomingGame | null>(null);
@@ -36,41 +97,25 @@ export default function DemoPage() {
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const autoStarted = useRef(false);
 
-  // Load brief (API first, then static seed) + pitch sequence.
   useEffect(() => {
-    let cancelled = false;
-    fetch("/api/demo-brief")
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .catch(() => fetch("/data/matchroom-demo-brief.json").then((r) => r.json()))
-      .then((d: VerifiedBriefResponse) => {
-        if (!cancelled) setBrief(d);
-      })
-      .catch(() => {});
-
-    fetch("/data/matchroom-pitch-sequence.json")
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d: { pitches?: PitchPoint[] }) => {
-        if (!cancelled && d?.pitches) setPitches(d.pitches);
-      })
-      .catch(() => {});
-
+    const controller = new AbortController();
     const params = new URLSearchParams(window.location.search);
-    const queryGamePk = params.get("gamePk");
-    const upcomingUrl = queryGamePk
-      ? `/api/upcoming-game?gamePk=${encodeURIComponent(queryGamePk)}`
-      : "/api/upcoming-game";
-    fetch(upcomingUrl, { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d: UpcomingGame) => {
-        if (!cancelled) {
-          setUpcomingGame(d);
-          setSelectedGamePk(d.gamePk);
+    void loadInitialDemoData(controller.signal, params.get("gamePk"))
+      .then((data) => {
+        if (controller.signal.aborted) return;
+        setBrief(data.brief);
+        if (data.pitches.length > 0) setPitches(data.pitches);
+        if (data.upcomingGame) {
+          setUpcomingGame(data.upcomingGame);
+          setSelectedGamePk(data.upcomingGame.gamePk);
         }
       })
-      .catch(() => {});
+      .catch((error) => {
+        if (!isAbortError(error)) return;
+      });
 
     return () => {
-      cancelled = true;
+      controller.abort();
     };
   }, []);
 

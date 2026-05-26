@@ -1,74 +1,161 @@
 name: Omar Gate
 
-# Modeled on mrrCarter/sentinelayer-web's Omar Gate, simplified for this repo:
-# managed-LLM mode (default) so only SENTINELAYER_TOKEN is required — no BYOK
-# OpenAI/Google keys. The action runs the scan, posts the PR check, and gates
-# merges at the configured severity.
-
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
     inputs:
       scan_mode:
-        description: Sentinelayer scan profile
+        description: SentinelLayer scan profile
         required: false
         default: deep
         type: choice
         options:
-          - deep
           - baseline
+          - deep
           - audit
+          - full-depth
+      severity_gate:
+        description: Severity threshold that blocks merge
+        required: false
+        default: P1
+        type: choice
+        options:
+          - P0
+          - P1
+          - P2
+          - none
 
 permissions:
   contents: read
-  pull-requests: write
-  checks: write
   id-token: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
+  omar-precheck:
+    name: Omar Gate Precheck
+    runs-on: ubuntu-22.04
+    outputs:
+      allow_scan: ${{ steps.gate.outputs.allow_scan }}
+    permissions:
+      contents: read
+    steps:
+      - id: gate
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          IS_FORK_PR: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork || false }}
+        run: |
+          set -euo pipefail
+          if [ "${EVENT_NAME}" = "pull_request" ] && [ "${IS_FORK_PR}" = "true" ]; then
+            echo "allow_scan=false" >> "${GITHUB_OUTPUT}"
+            echo "Skipping privileged Omar scan for forked pull_request events."
+            exit 0
+          fi
+
+          echo "allow_scan=true" >> "${GITHUB_OUTPUT}"
+
   omar-review:
     name: Omar Gate (Deep Scan)
-    # Skip the privileged scan on forked PRs (no access to repo secrets).
-    if: >-
-      github.event_name != 'pull_request' ||
-      github.event.pull_request.head.repo.full_name == github.repository
+    needs: [omar-precheck]
+    if: needs.omar-precheck.outputs.allow_scan == 'true'
     runs-on: ubuntu-22.04
-    timeout-minutes: 30
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      checks: write
+      id-token: write
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Verify Omar secret
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Validate SentinelLayer token
         shell: bash
         env:
           SENTINELAYER_TOKEN: ${{ secrets.SENTINELAYER_TOKEN }}
         run: |
           set -euo pipefail
-          if [ -z "${SENTINELAYER_TOKEN:-}" ]; then
-            echo "::error::SENTINELAYER_TOKEN is required. Set it with: gh secret set SENTINELAYER_TOKEN --repo mrrCarter/matchroom"
-            exit 1
-          fi
+          test -n "${SENTINELAYER_TOKEN}" || (echo "Missing SENTINELAYER_TOKEN" && exit 1)
 
       - name: Omar Gate
         id: omar
-        uses: mrrCarter/sentinelayer-v1-action@03d7369cba7de2e9f15b959275c982111f0ee493 # v1.3.8
+        uses: mrrCarter/sentinelayer-v1-action@03d7369cba7de2e9f15b959275c982111f0ee493
         with:
           github_token: ${{ github.token }}
           sentinelayer_token: ${{ secrets.SENTINELAYER_TOKEN }}
+          sentinelayer_spec_id: ${{ vars.SENTINELAYER_SPEC_ID || '' }}
           sentinelayer_managed_llm: "true"
           scan_mode: ${{ github.event_name == 'workflow_dispatch' && inputs.scan_mode || 'deep' }}
-          severity_gate: P1
+          severity_gate: ${{ github.event_name == 'workflow_dispatch' && inputs.severity_gate || 'P1' }}
+          model: gemini-2.5-flash
+          codex_model: gpt-5.3-codex
+          model_fallback: gemini-2.5-flash
+          use_codex: "true"
+          codex_only: "false"
+          llm_failure_policy: block
+          playwright_mode: off
+          sbom_mode: baseline
+          wait_for_completion: "true"
 
-      - name: Omar run summary
-        if: always()
-        shell: bash
-        run: |
-          set -euo pipefail
-          {
-            echo "## Omar Gate"
-            echo "- gate_status: \`${{ steps.omar.outputs.gate_status }}\`"
-            echo "- findings: \`P0=${{ steps.omar.outputs.p0_count }} P1=${{ steps.omar.outputs.p1_count }} P2=${{ steps.omar.outputs.p2_count }} P3=${{ steps.omar.outputs.p3_count }}\`"
-            echo "- merge gate: \`severity_gate=P1\` (blocks on P0/P1)"
-          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload Omar Gate artifacts
+        if: always() && steps.omar.outputs.run_id != ''
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
+        with:
+          name: sentinelayer-codex-${{ steps.omar.outputs.run_id }}
+          path: .sentinelayer/runs/${{ steps.omar.outputs.run_id }}
+          if-no-files-found: warn
+
+  omar-fork-scan:
+    name: Omar Gate Fork Fallback
+    needs: [omar-precheck]
+    if: needs.omar-precheck.outputs.allow_scan != 'true' && github.event_name == 'pull_request'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
