@@ -1,9 +1,10 @@
 import Link from "next/link";
 
 const NAV = [
-  { label: "How it works", href: "#how-it-works" },
+  { label: "How it works", href: "/#how-it-works" },
   { label: "Demo", href: "/demo" },
-  { label: "Ask an AI", href: "#ask-ai" },
+  { label: "Present", href: "/present" },
+  { label: "Ask an AI", href: "/#ask-ai" },
 ];
 
 export function SiteHeader() {
