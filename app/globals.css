@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #060816;
+  --surface: #0d1324;
+  --surface-2: #121a31;
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #f5f7fb;
+  --muted: #a9b2c7;
+  --green: #5bf2a5;
+  --blue: #66b3ff;
+  --gold: #ffc857;
+  --danger: #ff6b6b;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@layer components {
+  .glass {
+    background: linear-gradient(
+      180deg,
+      rgba(18, 26, 49, 0.7) 0%,
+      rgba(13, 19, 36, 0.55) 100%
+    );
+    border: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+  }
+
+  .pitch-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+
+  .text-gradient {
+    background: linear-gradient(120deg, #f5f7fb 0%, #66b3ff 55%, #5bf2a5 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* radial glow used behind hero */
+.hero-glow::before {
+  content: "";
+  position: absolute;
+  inset: -20% 0 auto 0;
+  height: 600px;
+  background: radial-gradient(
+    60% 50% at 70% 20%,
+    rgba(102, 179, 255, 0.18) 0%,
+    rgba(91, 242, 165, 0.08) 35%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+::selection {
+  background: rgba(91, 242, 165, 0.25);
+}

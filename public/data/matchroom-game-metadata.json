@@ -1,0 +1,22 @@
+{
+  "league": "MLB",
+  "season": 2026,
+  "gamePk": 824758,
+  "date": "2026-05-26",
+  "gameDateUtc": "2026-05-26T22:45:00Z",
+  "status": "Pre-Game",
+  "home_team": "Boston Red Sox",
+  "away_team": "Atlanta Braves",
+  "stadium": "Fenway Park",
+  "data_source": "Statcast via Baseball Savant + MLB Stats API",
+  "source_url": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=2026-05-26&teamId=111",
+  "seed_evidence_game": {
+    "gamePk": 824923,
+    "date": "2026-05-17",
+    "away_team": "Boston Red Sox",
+    "home_team": "Atlanta Braves",
+    "score": "Atlanta Braves 8, Boston Red Sox 1",
+    "stadium": "Truist Park",
+    "source_url": "https://statsapi.mlb.com/api/v1/game/824923/playByPlay"
+  }
+}

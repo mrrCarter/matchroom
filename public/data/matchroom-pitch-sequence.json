@@ -1,0 +1,66 @@
+{
+  "gamePk": 824923,
+  "label": "Ozzie Albies vs Brayan Bello, 1st inning, 2026-05-17",
+  "computedFrom": "statcast",
+  "sourceUrl": "https://statsapi.mlb.com/api/v1/game/824923/playByPlay",
+  "videoUrlTemplate": "https://baseballsavant.mlb.com/sporty-videos?playId={pitchId}",
+  "pitches": [
+    {
+      "pitchId": "a9ccaef7-db03-37b7-85ef-508e3de4cf22",
+      "t": 0,
+      "plateX": -0.876,
+      "plateZ": 2.384,
+      "pitchType": "SI",
+      "velocity": 95.5,
+      "result": "ball",
+      "label": "SI 95.5"
+    },
+    {
+      "pitchId": "d6a4bd02-a7c7-3c21-b584-81353e2c7711",
+      "t": 0.8,
+      "plateX": -1.25,
+      "plateZ": 3.039,
+      "pitchType": "SI",
+      "velocity": 96.1,
+      "result": "ball",
+      "label": "SI 96.1"
+    },
+    {
+      "pitchId": "c7eea69b-5dcf-3e66-9a36-8e4a6ee3b178",
+      "t": 1.6,
+      "plateX": 1.325,
+      "plateZ": 1.985,
+      "pitchType": "SI",
+      "velocity": 95,
+      "result": "ball",
+      "label": "SI 95.0"
+    },
+    {
+      "pitchId": "1143978c-79c4-382d-bf9a-cdd07408e80d",
+      "t": 2.4,
+      "plateX": -0.171,
+      "plateZ": 2.492,
+      "pitchType": "SI",
+      "velocity": 94.9,
+      "result": "called_strike",
+      "label": "SI 94.9"
+    },
+    {
+      "pitchId": "d735add5-675d-378f-a533-d27882eee77e",
+      "t": 3.2,
+      "plateX": -1.085,
+      "plateZ": 2.317,
+      "pitchType": "SI",
+      "velocity": 95.2,
+      "result": "in_play",
+      "label": "SI 95.2"
+    }
+  ],
+  "battedBall": {
+    "x": 171.29,
+    "y": 106.74,
+    "exitVelocity": 81.4,
+    "launchAngle": 18,
+    "result": "ozzie albies singles on a line drive to right fielder wilyer abreu."
+  }
+}

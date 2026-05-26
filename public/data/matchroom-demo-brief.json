@@ -1,0 +1,186 @@
+{
+  "mode": "seeded",
+  "generatedAt": "2026-05-26T18:29:31.836Z",
+  "game": {
+    "league": "MLB",
+    "season": 2026,
+    "gamePk": 824758,
+    "date": "2026-05-26",
+    "homeTeam": "Boston Red Sox",
+    "awayTeam": "Atlanta Braves",
+    "stadium": "Fenway Park",
+    "dataSource": "MLB Stats API schedule plus pitch-level evidence from MLB Stats API play-by-play; Baseball Savant play IDs are retained for video verification."
+  },
+  "coachQuestion": "How do we attack the Braves' lineup tomorrow?",
+  "executiveSummary": "The 2026-05-26 Red Sox-Braves game is pre-game for Fenway, so this seeded brief uses the completed Red Sox-Braves matchup from 2026-05-17. In that sample, Atlanta hitters saw 146 tracked pitches, put 27 balls in play, produced 12 balls at 95+ mph, and chased 33% of pitches outside the strike zone when they swung. The safest recommendation is narrow: change eye levels, avoid middle cutters to Austin Riley, and protect left-center hard contact.",
+  "attackingPlan": [
+    {
+      "id": "attack-riley-middle-cutter",
+      "title": "Do not give Riley a center-cut cutter after contact is timed",
+      "claim": "Austin Riley produced a 104.0 mph, 431 ft home run on a 1-2 cutter in zone 5, then later doubled at 101.0 mph on a low changeup. In this sample, he covered both the middle cutter and the low finish pitch.",
+      "confidence": "medium",
+      "status": "revised",
+      "evidence": [
+        {
+          "pitchId": "ef3bc1c2-0f99-33a8-a1c6-0ecf9f0a0172",
+          "gamePk": 824923,
+          "inning": 1,
+          "halfInning": "bottom",
+          "atBatIndex": 8,
+          "pitchNumber": 4,
+          "pitcher": "Brayan Bello",
+          "batter": "Austin Riley",
+          "pitchType": "FC",
+          "description": "Austin Riley homered to left center on an 87.7 mph cutter in zone 5; exit velocity 104.0 mph, launch angle 31 degrees, distance 431 ft.",
+          "plateX": -0.073,
+          "plateZ": 2.77,
+          "exitVelocity": 104,
+          "launchAngle": 31
+        },
+        {
+          "pitchId": "cf772f36-f0c2-31e4-934a-872533bd96fb",
+          "gamePk": 824923,
+          "inning": 5,
+          "halfInning": "bottom",
+          "atBatIndex": 42,
+          "pitchNumber": 5,
+          "pitcher": "Brayan Bello",
+          "batter": "Austin Riley",
+          "pitchType": "CH",
+          "description": "Austin Riley doubled to left on an 88.2 mph changeup below the zone; exit velocity 101.0 mph, launch angle 12 degrees.",
+          "plateX": -0.188,
+          "plateZ": 1.379,
+          "exitVelocity": 101,
+          "launchAngle": 12
+        }
+      ],
+      "skepticNote": "This is one game, not a season-wide Riley weakness map. Keep the claim to pitch selection in the sampled matchup.",
+      "whyItMatters": "Riley changed the game on a pitch that looked like a chase or weak-contact setup but caught too much hittable space.",
+      "recommendedAction": "Open Riley with either elevated velocity above his barrel path or breaking movement away from zone 5. Do not repeat cutter-to-cutter sequencing once he has fouled off the sinker."
+    }
+  ],
+  "defensiveAlignment": [
+    {
+      "id": "defend-left-center-contact",
+      "title": "Protect left and center field before over-shifting the infield",
+      "claim": "Atlanta put 27 tracked balls in play in the 2026-05-17 sample. Locations 7 and 8 accounted for 13 of them, and 12 batted balls were hit 95+ mph.",
+      "confidence": "medium",
+      "status": "accepted",
+      "evidence": [
+        {
+          "pitchId": "ea3dc7ac-491e-31e5-967b-189102311656",
+          "gamePk": 824923,
+          "inning": 2,
+          "halfInning": "bottom",
+          "atBatIndex": 13,
+          "pitchNumber": 7,
+          "pitcher": "Brayan Bello",
+          "batter": "Jorge Mateo",
+          "pitchType": "SI",
+          "description": "Jorge Mateo doubled on a sharp line drive to left field; exit velocity 103.7 mph, launch angle 13 degrees.",
+          "plateX": -1.28,
+          "plateZ": 2.316,
+          "exitVelocity": 103.7,
+          "launchAngle": 13
+        },
+        {
+          "pitchId": "72193820-d40b-39b9-b665-6f2541de65dc",
+          "gamePk": 824923,
+          "inning": 8,
+          "halfInning": "bottom",
+          "atBatIndex": 68,
+          "pitchNumber": 2,
+          "pitcher": "Ryan Watson",
+          "batter": "Drake Baldwin",
+          "pitchType": "SI",
+          "description": "Drake Baldwin hit a 105.6 mph sacrifice fly to center field on a sinker.",
+          "plateX": -0.46,
+          "plateZ": 2.67,
+          "exitVelocity": 105.6,
+          "launchAngle": 18
+        }
+      ],
+      "skepticNote": "The fielding-location distribution is from one completed Braves home game. Treat it as demo evidence, not a permanent spray profile.",
+      "whyItMatters": "The demo needs a visible defensive recommendation that is evidence-gated and narrow enough to defend.",
+      "recommendedAction": "Start LF and CF one step deeper and shade the left-center gap against the hard-contact bats; keep the second baseman honest because five tracked balls were fielded in location 4."
+    }
+  ],
+  "pitchingPlan": [
+    {
+      "id": "pitch-olson-eye-level",
+      "title": "Change Olson's eye level before the finish pitch",
+      "claim": "Ryan Watson struck out Matt Olson after two fastballs up or near the top band and finished with an 89.7 mph cutter for a swinging strike.",
+      "confidence": "medium",
+      "status": "accepted",
+      "evidence": [
+        {
+          "pitchId": "4b1fbd8e-070a-3967-a121-ed8da8b4b379",
+          "gamePk": 824923,
+          "inning": 6,
+          "halfInning": "bottom",
+          "atBatIndex": 53,
+          "pitchNumber": 5,
+          "pitcher": "Ryan Watson",
+          "batter": "Matt Olson",
+          "pitchType": "FF",
+          "description": "Matt Olson fouled a 94.0 mph four-seam fastball above the zone at plate_z 3.834.",
+          "plateX": -0.067,
+          "plateZ": 3.834
+        },
+        {
+          "pitchId": "966f2465-e9db-3236-8c8c-02e726c73f20",
+          "gamePk": 824923,
+          "inning": 6,
+          "halfInning": "bottom",
+          "atBatIndex": 53,
+          "pitchNumber": 6,
+          "pitcher": "Ryan Watson",
+          "batter": "Matt Olson",
+          "pitchType": "FC",
+          "description": "Matt Olson struck out swinging on an 89.7 mph cutter in zone 5.",
+          "plateX": -0.15,
+          "plateZ": 2.912
+        }
+      ],
+      "skepticNote": "Do not generalize this into Olson always chasing. The supported claim is the successful eye-level sequence in this at-bat.",
+      "whyItMatters": "It gives the coach a repeatable sequence with exact pitch evidence instead of a vague 'mix speeds' note.",
+      "recommendedAction": "Use four-seamers to move Olson's sight line up, then finish with a cutter only after the top-band pitch has been shown."
+    }
+  ],
+  "riskFlags": [
+    {
+      "id": "risk-current-game-not-final",
+      "title": "Canonical Fenway game has not produced pitch data yet",
+      "claim": "The 2026-05-26 Red Sox-Braves game is Pre-Game in MLB Stats API, so completed-game pitch evidence is not available for that game at seed time.",
+      "confidence": "high",
+      "status": "accepted",
+      "evidence": [
+        {
+          "pitchId": "schedule-824758",
+          "gamePk": 824758,
+          "inning": 0,
+          "halfInning": "top",
+          "atBatIndex": 0,
+          "pitchNumber": 0,
+          "description": "MLB Stats API schedule endpoint reports gamePk 824758 as Pre-Game for 2026-05-26T22:45:00Z at Fenway Park."
+        }
+      ],
+      "skepticNote": "The demo must label this as seeded from a recent completed matchup until the Fenway game has live feed data.",
+      "whyItMatters": "It prevents the product from implying nonexistent pitch data for a game that has not started.",
+      "recommendedAction": "Show the Fenway game as the target context and the 2026-05-17 Braves matchup as the evidence source."
+    }
+  ],
+  "coachActions": [
+    "Target game: Braves at Red Sox, Fenway Park, 2026-05-26, gamePk 824758.",
+    "Evidence seed: Red Sox at Braves, 2026-05-17, gamePk 824923, final Atlanta Braves 8, Boston Red Sox 1.",
+    "Against Austin Riley, avoid zone-5 cutters after he has seen sinker velocity in the at-bat.",
+    "Against Matt Olson, change eye level with four-seamers before using the cutter as a finish pitch.",
+    "Start the outfield with left-center protection; do not oversell this as a season-long spray tendency."
+  ],
+  "evidenceNotes": [
+    "All pitch IDs in evidence come from MLB Stats API play-by-play for gamePk 824923.",
+    "Baseball Savant video URLs can be formed with https://baseballsavant.mlb.com/sporty-videos?playId={pitchId}.",
+    "The 2026-05-26 canonical game is pre-game, so the seeded fallback intentionally uses the completed Red Sox-Braves game from 2026-05-17.",
+    "Data via Statcast / Baseball Savant and the MLB Stats API. This demo is a research / exploration project built for a sports-tech hackathon."
+  ]
+}
