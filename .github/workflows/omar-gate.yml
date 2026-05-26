@@ -118,9 +118,6 @@ jobs:
           use_codex: "true"
           codex_only: "false"
           llm_failure_policy: block
-          playwright_mode: off
-          sbom_mode: baseline
-          wait_for_completion: "true"
 
       - name: Upload Omar Gate artifacts
         if: always() && steps.omar.outputs.run_id != ''
