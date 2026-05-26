@@ -102,7 +102,10 @@ export interface UpcomingGame {
     date: string;
     sourceUrl: string;
     trackedPitches: number;
+    outsideZonePitches: number;
+    chaseSwings: number;
     chaseRatePct: number;
+    whiffRatePct: number;
     hardHitBalls95PlusMph: number;
     description: string;
   };

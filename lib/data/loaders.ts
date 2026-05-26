@@ -61,7 +61,7 @@ function withUpcomingGameContext(
         "MLB Stats API live schedule plus seeded pitch-level evidence from MLB Stats API play-by-play.",
     },
     coachQuestion: upcomingGame.coachQuestion,
-    executiveSummary: `Live upcoming-game context from MLB Stats API: ${upcomingGame.matchupLabel}, ${upcomingGame.status}, ${upcomingGame.venue}, ${upcomingGame.date}.${pitcherLine(upcomingGame)} The tactical recommendations below are evidence-gated against the completed Red Sox-Braves sample (${upcomingGame.evidenceFallback.trackedPitches} tracked pitches, ${upcomingGame.evidenceFallback.chaseRatePct}% chase rate, ${upcomingGame.evidenceFallback.hardHitBalls95PlusMph} hard-hit balls). ${brief.executiveSummary}`,
+    executiveSummary: `Live upcoming-game context from MLB Stats API: ${upcomingGame.matchupLabel}, ${upcomingGame.status}, ${upcomingGame.venue}, ${upcomingGame.date}.${pitcherLine(upcomingGame)} The tactical recommendations below are evidence-gated against the completed Red Sox-Braves sample (${upcomingGame.evidenceFallback.trackedPitches} tracked pitches, ${upcomingGame.evidenceFallback.chaseSwings}/${upcomingGame.evidenceFallback.outsideZonePitches} chase swings, ${upcomingGame.evidenceFallback.chaseRatePct}% chase rate, ${upcomingGame.evidenceFallback.whiffRatePct}% whiff rate, ${upcomingGame.evidenceFallback.hardHitBalls95PlusMph} hard-hit balls). ${brief.executiveSummary}`,
     riskFlags: [
       scheduleEvidence,
       ...brief.riskFlags.filter((flag) => flag.id !== scheduleEvidence.id),
@@ -69,6 +69,7 @@ function withUpcomingGameContext(
     coachActions: [
       `Target upcoming game: ${upcomingGame.matchupLabel}, ${upcomingGame.venue}, ${upcomingGame.date}, gamePk ${upcomingGame.gamePk}.`,
       `Probable starters: ${upcomingGame.away.probablePitcher?.fullName ?? "TBD"} vs ${upcomingGame.home.probablePitcher?.fullName ?? "TBD"}.`,
+      `Proof anchor: Atlanta chased ${upcomingGame.evidenceFallback.chaseRatePct}% of out-of-zone pitches (${upcomingGame.evidenceFallback.chaseSwings}/${upcomingGame.evidenceFallback.outsideZonePitches}) in the completed evidence sample.`,
       ...brief.coachActions.filter((action) => !action.startsWith("Target game:")),
     ],
     evidenceNotes: [

@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { HeroPitchDemo } from "./HeroPitchDemo";
+import { statcastSummary } from "@/lib/data/seeded";
+
+const proof = statcastSummary.zoneDiscipline;
+const trackedPitches = statcastSummary.sample.trackedPitches;
 
 export function HeroSection() {
   return (
@@ -22,6 +26,20 @@ export function HeroSection() {
             MatchRoom turns real Statcast data into a verified coaching brief —
             scout, skeptic, and coach-ready output in minutes.
           </p>
+
+          <div className="mt-6 max-w-xl rounded-2xl border border-green/25 bg-green/5 p-4">
+            <p className="font-mono text-[10px] uppercase tracking-wide text-green">
+              Verified proof point
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-text/90">
+              In the Braves-Red Sox evidence sample, Atlanta chased{" "}
+              <span className="font-semibold text-green">
+                {proof.chaseRatePct}% of pitches outside the zone
+              </span>{" "}
+              ({proof.chaseSwings}/{proof.outsideZonePitches}) across{" "}
+              {trackedPitches} tracked pitches.
+            </p>
+          </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link

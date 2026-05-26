@@ -172,6 +172,13 @@ export default function DemoPage() {
                   Probables: {upcomingGame.away.probablePitcher?.fullName ?? "TBD"} vs{" "}
                   {upcomingGame.home.probablePitcher?.fullName ?? "TBD"}
                 </p>
+                <p className="mt-3 rounded-lg border border-green/20 bg-green/5 px-3 py-2 text-xs leading-relaxed text-text/85">
+                  Proof anchor: {upcomingGame.evidenceFallback.chaseRatePct}% chase
+                  rate ({upcomingGame.evidenceFallback.chaseSwings}/
+                  {upcomingGame.evidenceFallback.outsideZonePitches} out-zone
+                  pitches chased) from {upcomingGame.evidenceFallback.trackedPitches}{" "}
+                  tracked pitches.
+                </p>
                 <button
                   type="button"
                   onClick={() => {

@@ -33,6 +33,11 @@ function statLine(stats?: PitcherSeasonStats): string {
   return pieces.length ? pieces.join(" · ") : "Season stats unavailable";
 }
 
+function proofLine(game: UpcomingGame): string {
+  const proof = game.evidenceFallback;
+  return `${proof.chaseRatePct}% chase rate (${proof.chaseSwings}/${proof.outsideZonePitches} out-of-zone pitches chased), ${proof.whiffRatePct}% whiff rate, ${proof.hardHitBalls95PlusMph} hard-hit balls from ${proof.trackedPitches} tracked pitches.`;
+}
+
 function PitcherBlock({ team }: { team: UpcomingTeamSnapshot }) {
   return (
     <div className="rounded-2xl border border-border bg-surface-2/50 p-4">
@@ -102,7 +107,7 @@ export function UpcomingGameCard() {
           </p>
           <p className="mt-4 text-sm leading-relaxed text-text/80">
             {game
-              ? `MatchRoom targets gamePk ${game.gamePk} and keeps the tactical evidence honest: ${game.evidenceFallback.trackedPitches} tracked pitches from gamePk ${game.evidenceFallback.gamePk} until the upcoming feed has completed pitch data.`
+              ? `MatchRoom targets gamePk ${game.gamePk} and keeps the tactical evidence honest: ${proofLine(game)} Evidence stays tied to gamePk ${game.evidenceFallback.gamePk} until the upcoming feed has completed pitch data.`
               : "No placeholder matchup is shown here. If the API is slow, the seeded brief still works."}
           </p>
           <Link
