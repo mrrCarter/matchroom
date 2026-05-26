@@ -2,16 +2,21 @@ import Link from "next/link";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { getUpcomingRedSoxGame } from "@/lib/data/mlb";
+import { statcastSummary } from "@/lib/data/seeded";
 import type { UpcomingGame } from "@/lib/types/matchroom";
 
 export const dynamic = "force-dynamic";
 
+const CHASE_RATE = statcastSummary.zoneDiscipline.chaseRatePct;
+const CHASE_SWINGS = statcastSummary.zoneDiscipline.chaseSwings;
+const OUTSIDE_ZONE_PITCHES = statcastSummary.zoneDiscipline.outsideZonePitches;
+const TRACKED_PITCHES = statcastSummary.sample.trackedPitches;
+
 const SCRIPT_SEGMENTS = [
   {
     time: "0-10s",
-    label: "Problem",
-    copy:
-      "Sports teams have more data than ever, but the hard part is knowing which claims are real, timely, and safe to act on.",
+    label: "Stat hook",
+    copy: `In our verified Braves-Red Sox sample, Atlanta chased ${CHASE_RATE}% of pitches outside the zone: ${CHASE_SWINGS} chase swings on ${OUTSIDE_ZONE_PITCHES} out-of-zone pitches. That is the kind of edge a coach needs with proof, not a black box.`,
   },
   {
     time: "10-25s",
@@ -86,6 +91,20 @@ export default async function PresentPage() {
               wedge, and why the same verified-agent system scales beyond one
               sport.
             </p>
+            <div className="mt-6 max-w-xl rounded-2xl border border-green/25 bg-green/10 p-4">
+              <p className="font-mono text-[11px] uppercase tracking-wide text-green">
+                Verified opening stat
+              </p>
+              <p className="mt-2 text-3xl font-semibold text-text">
+                {CHASE_RATE}% chase rate
+              </p>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                {CHASE_SWINGS} chase swings on {OUTSIDE_ZONE_PITCHES} out-of-zone
+                pitches in {TRACKED_PITCHES} tracked pitches. The point is not
+                just the stat. It is that every claim shows the evidence behind
+                it.
+              </p>
+            </div>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
                 href={demoHref}
